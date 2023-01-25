@@ -10,47 +10,54 @@ namespace ChatClient
 {
     public partial class Form1 : Form
     {
+
         public Form1()
         {
             InitializeComponent();
         }
-        
+        ChatContext _CP = new ChatContext();
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
-
-         
         }
-
         private void Form1_Load(object sender, EventArgs e)
         {
             LoginForm LF = new LoginForm();
             LF.ShowDialog();
             label1.Text = AppMain.User.Username;
-            using (ChatContext CP =new ChatContext())
-            {
-            dataGridView1.DataSource = CP.Messages.ToList();
-            }
+            timer1.Start();
+            GetAll();
+        }
+
+        private void GetAll()
+        {
+            dataGridView1.DataSource = _CP.Messages.ToList();
         }
 
         private async void textBox1_KeyDown(object sender, KeyEventArgs e)
         {
-           
-            if (e.KeyCode == Keys.Enter&&textBox1.Text!="")
+            if (e.KeyCode == Keys.Enter && textBox1.Text != "")
             {
                 Message newMessage = new Message()
                 {
                     Message1 = textBox1.Text,
-                    SenderName= AppMain.User.Username,
-                    SenderTime= DateTime.UtcNow
+                    SenderName = AppMain.User.Username,
+                    SenderTime = DateTime.UtcNow
                 };
                 var json = JsonConvert.SerializeObject(newMessage);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-                HttpResponseMessage message= HttpHelper.httpClient.PostAsync($"/api/Messages/SendMessage", content).Result;
-                using (ChatContext CP = new ChatContext())
-                {
-                    dataGridView1.DataSource = CP.Messages.ToList();
-                }
+                await HttpHelper.httpClient.PostAsync($"/api/Messages/SendMessage", content).Result.Content.ReadAsStringAsync();
+                dataGridView1.DataSource = _CP.Messages.ToList();
+                textBox1.Text = "";
             }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            dataGridView1.DataSource = _CP.Messages.ToList();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
         }
     }
 }

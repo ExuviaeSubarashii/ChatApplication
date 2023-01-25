@@ -13,6 +13,13 @@ namespace ChatAPI.Controllers
         {
             _CP= CP;
         }
+        [HttpGet]
+        [Route("GetAll")]
+        public ActionResult GetAll()
+        {
+            var query=_CP.Messages.ToList();
+            return Ok(query);
+        }
         [HttpPost]
         [Route("SendMessage")]
         public ActionResult SendMessage([FromBody] Message msg)

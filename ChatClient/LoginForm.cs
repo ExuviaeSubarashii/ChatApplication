@@ -49,5 +49,26 @@ namespace ChatClient
             }
             this.Close();
         }
+
+        private async void button2_Click(object sender, EventArgs e)
+        {
+            Chat.Domain.Models.User newUser = new Chat.Domain.Models.User()
+            {
+                Username = textBox1.Text,
+                Password = textBox2.Text,
+                HasPassword = textBox2.Text.ConvertStringToMD5()
+            };
+            var json = JsonConvert.SerializeObject(newUser);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            HttpResponseMessage message = await HttpHelper.httpClient.PostAsync($"/api/Users/Login", content);
+            if (message.StatusCode==HttpStatusCode.OK)
+            {
+                MessageBox.Show("Kayit Basarili");
+            }
+            else
+            {
+                return;
+            }
+        }
     }
 }
