@@ -29,6 +29,7 @@ namespace ChatAPI.Controllers
                 Message1=msg.Message1,
                 SenderName=msg.SenderName,
                 SenderTime=msg.SenderTime,
+                Server=msg.Server
             };
             _CP.Messages.Add(newmsg);
             _CP.SaveChanges();

@@ -1,6 +1,8 @@
 ﻿using Chat.Domain.Models;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ChatAPI.Controllers
@@ -14,6 +16,13 @@ namespace ChatAPI.Controllers
         {
             _CP = CP;
         }
+        [HttpGet]
+        [Route("GetAll/{username}")]
+        public ActionResult GetAll(string username)
+        {
+            var query2 = _CP.Users.Where(x => x.Username.TrimEnd() == username.TrimEnd()).ToList();
+            return Ok(query2);
+        }
         [HttpPost]
         [Route("CreateUser")]
         public ActionResult CreateUser([FromBody] User user)
@@ -21,9 +30,11 @@ namespace ChatAPI.Controllers
             var query=_CP.Users.Where(x=>x.Username==user.Username).Any();
             User newUser = new User()
             {
-                Username= user.Username,
-                Password=user.Password,
-                HasPassword=user.HasPassword
+                Username = user.Username,
+                Password = user.Password,
+                HasPassword = user.HasPassword,
+                Image = user.Image,
+                Server = user.Server
             };
             if (query == true)
             {
@@ -39,6 +50,21 @@ namespace ChatAPI.Controllers
                 _CP.SaveChanges();
                 return Ok();
             }
+        }
+        [HttpPut]
+        [Route("AddServer")]
+        public ActionResult AddServer([FromBody] User user)
+        {
+            var query = _CP.Users.Any(x => x.Username.TrimEnd() == user.Username.TrimEnd());
+            var query2=_CP.Users.Where(x=>x.Username.TrimEnd()==user.Username.TrimEnd()).FirstOrDefault();
+            if (query)
+            {
+                query2.Server = query2.Server.TrimEnd() + ", " + user.Server.TrimEnd();
+                //_CP.Users.Add(newUser);
+                _CP.SaveChanges();
+            }
+            
+            return Ok();
         }
         [HttpPost]
         [Route("Login")]

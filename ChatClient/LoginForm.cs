@@ -33,16 +33,15 @@ namespace ChatClient
             AppMain.User = new Chat.Domain.Models.User();
             AppMain.User.Username = textBox1.Text;
 
-            Chat.Domain.Models.User newUser= new Chat.Domain.Models.User()
+            Chat.Domain.Models.User newUser = new Chat.Domain.Models.User()
             {
-                Username=textBox1.Text,
-                Password=textBox2.Text,
-                HasPassword=textBox2.Text.ConvertStringToMD5()
+                Username = textBox1.Text,
+                Password = textBox2.Text
             };
             var json = JsonConvert.SerializeObject(newUser);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            HttpResponseMessage message=  await HttpHelper.httpClient.PostAsync($"/api/Users/Login", content);
-            if (message.StatusCode!=HttpStatusCode.OK)
+            HttpResponseMessage message = await HttpHelper.httpClient.PostAsJsonAsync($"/api/Users/Login", newUser);
+            if (message.StatusCode != HttpStatusCode.OK)
             {
                 MessageBox.Show("Kullanici Bulunamadi");
                 return;
@@ -52,15 +51,22 @@ namespace ChatClient
 
         private async void button2_Click(object sender, EventArgs e)
         {
+            System.IO.MemoryStream mstr = new System.IO.MemoryStream();
+            Image img = new Bitmap(pictureBox1.ImageLocation);
+            img.Save(mstr, img.RawFormat);
+            byte[] arrImage = mstr.GetBuffer();
+
             Chat.Domain.Models.User newUser = new Chat.Domain.Models.User()
             {
                 Username = textBox1.Text,
                 Password = textBox2.Text,
-                HasPassword = textBox2.Text.ConvertStringToMD5()
+                HasPassword = textBox2.Text.ConvertStringToMD5(),
+                Image=arrImage,
+                Server=null
             };
             var json = JsonConvert.SerializeObject(newUser);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            HttpResponseMessage message = await HttpHelper.httpClient.PostAsync($"/api/Users/Login", content);
+            HttpResponseMessage message = await HttpHelper.httpClient.PostAsync($"/api/Users/CreateUser", content);
             if (message.StatusCode==HttpStatusCode.OK)
             {
                 MessageBox.Show("Kayit Basarili");
@@ -68,6 +74,21 @@ namespace ChatClient
             else
             {
                 return;
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            string sourcepath = "";
+            using (OpenFileDialog dlg = new OpenFileDialog())
+            {
+                dlg.Title = "Dokuman Ekle";
+
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    sourcepath = dlg.FileName;
+                }
+                pictureBox1.ImageLocation = dlg.FileName;
             }
         }
     }

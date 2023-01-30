@@ -9,5 +9,7 @@ namespace Chat.Domain.Models
         public string SenderName { get; set; } = null!;
         public DateTime SenderTime { get; set; }
         public string Message1 { get; set; } = null!;
+
+        public string Server { get; set; } = null!;
     }
 }

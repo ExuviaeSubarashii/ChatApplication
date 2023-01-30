@@ -47,6 +47,12 @@ namespace Chat.Domain.Models
                     .IsFixedLength();
 
                 entity.Property(e => e.SenderTime).HasColumnName("Sender_Time");
+
+                entity.Property(e => e.Server)
+                    .HasMaxLength(310)
+                    .IsUnicode(false)
+                    .HasColumnName("Server")
+                    .IsFixedLength();
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -63,6 +69,14 @@ namespace Chat.Domain.Models
                 entity.Property(e => e.Username)
                     .HasMaxLength(25)
                     .IsUnicode(false)
+                    .IsFixedLength();
+
+                entity.Property(e => e.Image).HasColumnName("Image");
+
+                entity.Property(e => e.Server)
+                    .HasMaxLength(310)
+                    .IsUnicode(false)
+                    .HasColumnName("Server")
                     .IsFixedLength();
             });
 
