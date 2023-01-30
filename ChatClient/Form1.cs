@@ -12,7 +12,6 @@ namespace ChatClient
 {
     public partial class Form1 : Form
     {
-
         public Form1()
         {
             InitializeComponent();
@@ -62,30 +61,58 @@ namespace ChatClient
         string[] sw;
         Button button = new Button();
 
-        public void GetServerNames()
+        public async void GetServerNames()
         {
-            var result = HttpHelper.httpClient.GetAsync($"/api/Users/GetAll/" + AppMain.User.Username).Result;
-            var json = result.Content.ReadAsStringAsync().Result;
+            flowLayoutPanel1.Controls.Clear();
+            var result = await HttpHelper.httpClient.GetAsync($"/api/Users/GetAll/" + AppMain.User.Username).Result.Content.ReadAsStringAsync();
+            var json = result;
             List<User> model = JsonConvert.DeserializeObject<List<User>>(json);
 
             foreach (var item in model)
             {
-                sw = item.Server.Split(',');
-                for (int i = 0; i < sw.Count(); i++)
+                if (item.Server != null)
                 {
-                    Button button2 = new Button();
-                    flowLayoutPanel1.Controls.Add(button2);
-                    button2.Font=new Font(button2.Font.Name,10,button2.Font.Style);
-                    button2.Text = sw[i];
-                    button.Text = button2.Text;
-                    button2.Click += HandleClick; ;
+                    sw = item.Server.Split(',');
+                    for (int i = 0; i < sw.Count(); i++)
+                    {
+                        Button button2 = new Button();
+                        flowLayoutPanel1.Controls.Add(button2);
+                        button2.Font = new Font(button2.Font.Name, 10, button2.Font.Style);
+                        button2.Text = sw[i];
+                        button.Text = button2.Text;
+                        button2.Click += HandleClick;
+                        button2.MouseUp += DeleteServers_MouseUp;
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
+
+        private async void DeleteServers_MouseUp(object? sender, MouseEventArgs e)
+        {
+            var btn = sender as Button;
+            User serverUser = new User()
+            {
+                Username = AppMain.User.Username,
+                Server = btn.Text
+            };
+            if (e.Button == MouseButtons.Right)
+            {
+                DialogResult dialogresult = MessageBox.Show("Do you want to leave from this server?", btn.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (dialogresult == DialogResult.Yes)
+                {
+                    await HttpHelper.httpClient.PutAsJsonAsync($"/api/Users/DeleteServer/", serverUser).Result.Content.ReadAsStringAsync();
+                    GetServerNames();
                 }
             }
         }
 
         private void HandleClick(object? sender, EventArgs e)
         {
-            var btn=sender as Button;
+            var btn = sender as Button;
             label2.Text = btn.Text.Trim();
             var query = _CP.Messages.Where(x => x.Server == label2.Text).ToList();
             dataGridView1.DataSource = query.ToList();
@@ -114,8 +141,8 @@ namespace ChatClient
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 await HttpHelper.httpClient.PostAsync($"/api/Messages/SendMessage", content).Result.Content.ReadAsStringAsync();
                 var query = _CP.Messages.Where(x => x.Server == label2.Text).ToList();
-                dataGridView1.DataSource = query.ToList()/*_CP.Messages.ToList()*/;
-                textBox1.Text = "";
+                dataGridView1.DataSource = query.ToList();
+                textBox1.Clear();
                 this.dataGridView1.Columns["Id"].Visible = false;
             }
         }
@@ -138,6 +165,8 @@ namespace ChatClient
             var json = JsonConvert.SerializeObject(newUser);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             HttpResponseMessage message = await HttpHelper.httpClient.PutAsync($"/api/Users/AddServer", content);
+            flowLayoutPanel1.Controls.Clear();
+            GetServerNames();
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
@@ -145,6 +174,10 @@ namespace ChatClient
             if (textBox2.Text == "")
             {
                 button4.Enabled = false;
+            }
+            else
+            {
+                button4.Enabled = true;
             }
         }
     }

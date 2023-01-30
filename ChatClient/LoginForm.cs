@@ -62,7 +62,7 @@ namespace ChatClient
                 Password = textBox2.Text,
                 HasPassword = textBox2.Text.ConvertStringToMD5(),
                 Image=arrImage,
-                Server=null
+                Server="Main"
             };
             var json = JsonConvert.SerializeObject(newUser);
             var content = new StringContent(json, Encoding.UTF8, "application/json");

@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Linq;
 using System.Text.Json.Serialization;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -15,6 +17,28 @@ namespace ChatAPI.Controllers
         public UsersController(ChatContext CP) 
         {
             _CP = CP;
+        }
+        [HttpPut]
+        [Route("DeleteServer")]
+        public ActionResult DeleteServer([FromBody]User user) 
+        {
+            string[] sww = null;
+            List<string> sw = new List<string>();
+            var query = _CP.Users.Where(x => x.Username.Trim() == user.Username.Trim()).FirstOrDefault();
+
+            var query2 = _CP.Users.Where(x => x.Username.Trim() == user.Username.Trim() && x.Server.Contains(user.Server)).ToList();
+            foreach (var item in query2)
+            {
+                sww = item.Server.Split(',');
+            }
+
+            List<String> list = sww.ToList();
+            list.Remove(user.Server);
+            string[] columns = list.ToArray();
+            var newservers = string.Join(",", columns);
+            query.Server = newservers;
+            _CP.SaveChanges();
+            return Ok();
         }
         [HttpGet]
         [Route("GetAll/{username}")]
@@ -60,7 +84,6 @@ namespace ChatAPI.Controllers
             if (query)
             {
                 query2.Server = query2.Server.TrimEnd() + ", " + user.Server.TrimEnd();
-                //_CP.Users.Add(newUser);
                 _CP.SaveChanges();
             }
             
