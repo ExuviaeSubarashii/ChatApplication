@@ -18,6 +18,7 @@ namespace Chat.Domain.Models
 
         public virtual DbSet<Message> Messages { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
+        public virtual DbSet<Servers> Servers { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -80,6 +81,26 @@ namespace Chat.Domain.Models
                     .IsFixedLength();
             });
 
+            modelBuilder.Entity<Servers>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("Id");
+                entity.Property(e => e.ServerName)
+                    .HasMaxLength(310)
+                    .IsUnicode(false)
+                    .HasColumnName("ServerName")
+                    .IsFixedLength();
+                entity.Property(e => e.Channels)
+                   .HasMaxLength(310)
+                   .IsUnicode(false)
+                   .HasColumnName("Channels")
+                   .IsFixedLength();
+                entity.Property(e => e.UserNames)
+                   .HasMaxLength(310)
+                   .IsUnicode(false)
+                   .HasColumnName("UserNames")
+                   .IsFixedLength();
+
+            });
             OnModelCreatingPartial(modelBuilder);
         }
 

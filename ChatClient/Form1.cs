@@ -57,9 +57,45 @@ namespace ChatClient
                 button4.Enabled = false;
             }
             GetServerNames();
+            
         }
         string[] sw;
+        string[] sww;
         Button button = new Button();
+        Button button3 = new Button();
+        public async void GetChannelNames()
+        {
+            flowLayoutPanel2.Controls.Clear();
+            var result = await HttpHelper.httpClient.GetAsync($"/api/Users/GetAllChannels/" + label2.Text).Result.Content.ReadAsStringAsync();
+            var json = result;
+            List<Servers> model = JsonConvert.DeserializeObject<List<Servers>>(json);
+            foreach (var item in model)
+            {
+                if (item.Channels!=null)
+                {
+                    sww = item.Channels.Split(',');
+                    for (int i = 0; i < sww.Count(); i++)
+                    {
+                        Button button2 = new Button();
+                        flowLayoutPanel2.Controls.Add(button2);
+                        button2.Font = new Font(button2.Font.Name, 10, button2.Font.Style);
+                        button2.Text = sww[i];
+                        button3.Text = button2.Text;
+                        button2.Click += Channel_Click;
+                        //button2.MouseUp 
+                    }
+                }
+            }
+        }
+
+        private void Channel_Click(object? sender, EventArgs e)
+        {
+            var btn = sender as Button;
+            //label2.Text = btn.Text.Trim();
+            var query = _CP.Servers.Where(x => x.Channels == btn.Text).ToList();
+            //dataGridView1.DataSource = query.ToList();
+            //this.dataGridView1.Columns["Id"].Visible = false;
+        }
 
         public async void GetServerNames()
         {
@@ -89,6 +125,7 @@ namespace ChatClient
                     return;
                 }
             }
+            
         }
 
         private async void DeleteServers_MouseUp(object? sender, MouseEventArgs e)
@@ -108,6 +145,10 @@ namespace ChatClient
                     GetServerNames();
                 }
             }
+            else if (e.Button==MouseButtons.Middle)
+            {
+                textBox2.Text=btn.Text;
+            }
         }
 
         private void HandleClick(object? sender, EventArgs e)
@@ -117,6 +158,7 @@ namespace ChatClient
             var query = _CP.Messages.Where(x => x.Server == label2.Text).ToList();
             dataGridView1.DataSource = query.ToList();
             this.dataGridView1.Columns["Id"].Visible = false;
+            GetChannelNames();
         }
 
         private void GetAll()
@@ -150,6 +192,7 @@ namespace ChatClient
         private void timer1_Tick(object sender, EventArgs e)
         {
             var query = _CP.Messages.Where(x => x.Server == label2.Text).ToList();
+            dataGridView1.DataSource = query.ToList();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -162,9 +205,24 @@ namespace ChatClient
                 Username = AppMain.User.Username,
                 Server = textBox2.Text
             };
-            var json = JsonConvert.SerializeObject(newUser);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-            HttpResponseMessage message = await HttpHelper.httpClient.PutAsync($"/api/Users/AddServer", content);
+            Servers newServer = new Servers()
+            {
+                ServerName=textBox2.Text,
+                Channels=textBox3.Text,
+                UserNames=AppMain.User.Username,
+            };
+            if (newServer.Channels==null)
+            {
+                MessageBox.Show("Bir kanal ismi ekleyiniz");
+                return;
+            }
+            var newUserjson = JsonConvert.SerializeObject(newUser);
+            var newUsercontent = new StringContent(newUserjson, Encoding.UTF8, "application/json");
+            HttpResponseMessage message = await HttpHelper.httpClient.PutAsync($"/api/Users/AddServer", newUsercontent);
+
+            var newServerjson = JsonConvert.SerializeObject(newServer);
+            var newServercontent = new StringContent(newServerjson, Encoding.UTF8, "application/json");
+            HttpResponseMessage message2 = await HttpHelper.httpClient.PutAsync($"/api/Users/AddChannel", newServercontent);
             flowLayoutPanel1.Controls.Clear();
             GetServerNames();
         }

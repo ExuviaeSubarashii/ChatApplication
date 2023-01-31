@@ -14,13 +14,13 @@ namespace ChatAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly ChatContext _CP;
-        public UsersController(ChatContext CP) 
+        public UsersController(ChatContext CP)
         {
             _CP = CP;
         }
         [HttpPut]
         [Route("DeleteServer")]
-        public ActionResult DeleteServer([FromBody]User user) 
+        public ActionResult DeleteServer([FromBody] User user)
         {
             string[] sww = null;
             List<string> sw = new List<string>();
@@ -47,11 +47,18 @@ namespace ChatAPI.Controllers
             var query2 = _CP.Users.Where(x => x.Username.TrimEnd() == username.TrimEnd()).ToList();
             return Ok(query2);
         }
+        [HttpGet]
+        [Route("GetAllChannels/{servername}")]
+        public ActionResult GetAllChannels(string servername)
+        {
+            var query = _CP.Servers.Where(x => x.ServerName.Trim() == servername.Trim()).ToList();
+            return Ok(query);
+        }
         [HttpPost]
         [Route("CreateUser")]
         public ActionResult CreateUser([FromBody] User user)
         {
-            var query=_CP.Users.Where(x=>x.Username==user.Username).Any();
+            var query = _CP.Users.Where(x => x.Username == user.Username).Any();
             User newUser = new User()
             {
                 Username = user.Username,
@@ -75,18 +82,34 @@ namespace ChatAPI.Controllers
                 return Ok();
             }
         }
+
+
+        [HttpPut]
+        [Route("AddChannel")]
+        public ActionResult AddChannel([FromBody] Servers servers)
+        {
+            var query3 = _CP.Servers.Any(x => x.ServerName.Trim() == servers.ServerName.Trim());
+            var query4 = _CP.Servers.Where(x => x.ServerName.TrimEnd() == servers.ServerName.TrimEnd()).FirstOrDefault();
+            if (query3)
+            {
+                query4.Channels = query4.Channels.TrimEnd() + ", " + servers.Channels.TrimEnd();
+            }
+            _CP.SaveChanges();
+            return Ok();
+        }
         [HttpPut]
         [Route("AddServer")]
         public ActionResult AddServer([FromBody] User user)
         {
+            string[] sww = null;
             var query = _CP.Users.Any(x => x.Username.TrimEnd() == user.Username.TrimEnd());
-            var query2=_CP.Users.Where(x=>x.Username.TrimEnd()==user.Username.TrimEnd()).FirstOrDefault();
+            var query2 = _CP.Users.Where(x => x.Username.TrimEnd() == user.Username.TrimEnd()).FirstOrDefault();
             if (query)
             {
                 query2.Server = query2.Server.TrimEnd() + ", " + user.Server.TrimEnd();
-                _CP.SaveChanges();
             }
-            
+
+            _CP.SaveChanges();
             return Ok();
         }
         [HttpPost]

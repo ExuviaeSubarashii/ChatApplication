@@ -10,5 +10,8 @@ namespace Chat.Infrastructure
     public class AppMain
     {
         public static User User { get; set; }
+        public static Message Message { get; set; }
+        public static Servers Servers { get; set; }
+            
     }
 }
