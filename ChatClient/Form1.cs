@@ -82,7 +82,6 @@ namespace ChatClient
                         button2.Text = sww[i];
                         button3.Text = button2.Text;
                         button2.Click += Channel_Click;
-                        //button2.MouseUp 
                     }
                 }
             }
@@ -91,10 +90,9 @@ namespace ChatClient
         private void Channel_Click(object? sender, EventArgs e)
         {
             var btn = sender as Button;
-            //label2.Text = btn.Text.Trim();
-            var query = _CP.Servers.Where(x => x.Channels == btn.Text).ToList();
-            //dataGridView1.DataSource = query.ToList();
-            //this.dataGridView1.Columns["Id"].Visible = false;
+            label3.Text = btn.Text.Trim();
+            var query = _CP.Servers.Where(x => x.ServerName==label2.Text&&x.Channels==label3.Text).ToList();
+            dataGridView1.DataSource = query.ToList();
         }
 
         public async void GetServerNames()
@@ -155,7 +153,7 @@ namespace ChatClient
         {
             var btn = sender as Button;
             label2.Text = btn.Text.Trim();
-            var query = _CP.Messages.Where(x => x.Server == label2.Text).ToList();
+            var query = _CP.Messages.Where(x => x.Server == label2.Text && x.Channel == label3.Text).ToList();
             dataGridView1.DataSource = query.ToList();
             this.dataGridView1.Columns["Id"].Visible = false;
             GetChannelNames();
@@ -163,7 +161,7 @@ namespace ChatClient
 
         private void GetAll()
         {
-            var query = _CP.Messages.Where(x => x.Server == label2.Text).ToList();
+            var query = _CP.Messages.Where(x => x.Server == label2.Text && x.Channel == label3.Text).ToList();
             dataGridView1.DataSource = query.ToList();
             this.dataGridView1.Columns["Id"].Visible = false;
         }
@@ -177,12 +175,13 @@ namespace ChatClient
                     Message1 = textBox1.Text,
                     SenderName = AppMain.User.Username,
                     SenderTime = DateTime.UtcNow,
-                    Server = label2.Text
+                    Server = label2.Text,
+                    Channel=label3.Text
                 };
                 var json = JsonConvert.SerializeObject(newMessage);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 await HttpHelper.httpClient.PostAsync($"/api/Messages/SendMessage", content).Result.Content.ReadAsStringAsync();
-                var query = _CP.Messages.Where(x => x.Server == label2.Text).ToList();
+                var query = _CP.Messages.Where(x => x.Server == label2.Text && x.Channel == label3.Text).ToList();
                 dataGridView1.DataSource = query.ToList();
                 textBox1.Clear();
                 this.dataGridView1.Columns["Id"].Visible = false;
@@ -191,7 +190,7 @@ namespace ChatClient
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            var query = _CP.Messages.Where(x => x.Server == label2.Text).ToList();
+            var query = _CP.Messages.Where(x => x.Server == label2.Text && x.Channel == label3.Text).ToList();
             dataGridView1.DataSource = query.ToList();
         }
 
@@ -219,6 +218,10 @@ namespace ChatClient
             var newUserjson = JsonConvert.SerializeObject(newUser);
             var newUsercontent = new StringContent(newUserjson, Encoding.UTF8, "application/json");
             HttpResponseMessage message = await HttpHelper.httpClient.PutAsync($"/api/Users/AddServer", newUsercontent);
+
+            var newtoServerjson = JsonConvert.SerializeObject(newServer);
+            var newtoServerrcontent = new StringContent(newtoServerjson, Encoding.UTF8, "application/json");
+            HttpResponseMessage message3 = await HttpHelper.httpClient.PostAsync($"/api/Users/AddNewServer", newtoServerrcontent);
 
             var newServerjson = JsonConvert.SerializeObject(newServer);
             var newServercontent = new StringContent(newServerjson, Encoding.UTF8, "application/json");

@@ -97,6 +97,25 @@ namespace ChatAPI.Controllers
             _CP.SaveChanges();
             return Ok();
         }
+        [HttpPost]
+        [Route("AddNewServer")]
+        public ActionResult AddToServer([FromBody] Servers servers)
+        {
+            Servers servers1 = new Servers()
+            {
+                UserNames= servers.UserNames,
+                Channels= servers.Channels,
+                ServerName= servers.ServerName,
+            };
+            var query = _CP.Servers.Any(x => x.ServerName.TrimEnd() == servers.ServerName.TrimEnd());
+            if (query)
+            {
+                return NotFound();
+            }
+            _CP.Servers.Add(servers1);
+            _CP.SaveChanges();
+            return Ok();
+        }
         [HttpPut]
         [Route("AddServer")]
         public ActionResult AddServer([FromBody] User user)

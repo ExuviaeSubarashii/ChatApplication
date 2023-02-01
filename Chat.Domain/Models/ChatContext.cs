@@ -54,6 +54,11 @@ namespace Chat.Domain.Models
                     .IsUnicode(false)
                     .HasColumnName("Server")
                     .IsFixedLength();
+                entity.Property(e => e.Channel)
+                   .HasMaxLength(310)
+                   .IsUnicode(false)
+                   .HasColumnName("Channel")
+                   .IsFixedLength();
             });
 
             modelBuilder.Entity<User>(entity =>
