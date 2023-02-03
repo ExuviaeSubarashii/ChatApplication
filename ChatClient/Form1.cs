@@ -57,6 +57,7 @@ namespace ChatClient
                 button4.Enabled = false;
             }
             GetServerNames();
+
             
         }
         string[] sw;
@@ -81,12 +82,34 @@ namespace ChatClient
                         button2.Font = new Font(button2.Font.Name, 10, button2.Font.Style);
                         button2.Text = sww[i];
                         button3.Text = button2.Text;
+                        button2.ForeColor=label2.ForeColor;
+                        button2.TextAlign = ContentAlignment.MiddleCenter;
                         button2.Click += Channel_Click;
                     }
                 }
             }
         }
-
+        Button buttonuser=new Button();
+        public async void GetUserNames()
+        {
+            string[] users;
+            flowLayoutPanel3.Controls.Clear();
+            var query = _CP.Servers.Where(x=>x.ServerName==label2.Text).ToList();
+            foreach (var item in query)
+            {
+                users = item.UserNames.Split(',');
+                for (int i = 0; i < users.Count(); i++)
+                {
+                    Button button2 = new Button();
+                    flowLayoutPanel3.Controls.Add(button2);
+                    button2.Font = new Font(button2.Font.Name, 10, button2.Font.Style);
+                    button2.Text = users[i];
+                    buttonuser.Text = button2.Text;
+                    button2.ForeColor = label2.ForeColor;
+                    button2.TextAlign = ContentAlignment.MiddleCenter;
+                }
+            }
+        }
         private void Channel_Click(object? sender, EventArgs e)
         {
             var btn = sender as Button;
@@ -114,6 +137,8 @@ namespace ChatClient
                         button2.Font = new Font(button2.Font.Name, 10, button2.Font.Style);
                         button2.Text = sw[i];
                         button.Text = button2.Text;
+                        button2.ForeColor = label2.ForeColor;
+                        button2.TextAlign = ContentAlignment.MiddleCenter;
                         button2.Click += HandleClick;
                         button2.MouseUp += DeleteServers_MouseUp;
                     }
@@ -157,6 +182,7 @@ namespace ChatClient
             dataGridView1.DataSource = query.ToList();
             this.dataGridView1.Columns["Id"].Visible = false;
             GetChannelNames();
+            GetUserNames();
         }
 
         private void GetAll()

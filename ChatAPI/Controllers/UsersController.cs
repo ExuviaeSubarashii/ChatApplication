@@ -18,6 +18,12 @@ namespace ChatAPI.Controllers
         {
             _CP = CP;
         }
+        //[HttpGet]
+        //[Route("GetUserNames")]
+        //public ActionResult GetUserNames()
+        //{
+        //    var query2 = _CP.Users.Any().ToList();
+        //}
         [HttpPut]
         [Route("DeleteServer")]
         public ActionResult DeleteServer([FromBody] User user)
