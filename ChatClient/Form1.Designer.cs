@@ -56,18 +56,19 @@
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowTemplate.Height = 25;
-            this.dataGridView1.Size = new System.Drawing.Size(1450, 952);
+            this.dataGridView1.Size = new System.Drawing.Size(1450, 928);
             this.dataGridView1.TabIndex = 0;
             // 
             // textBox1
             // 
             this.textBox1.BackColor = System.Drawing.Color.DimGray;
             this.textBox1.ForeColor = System.Drawing.Color.GhostWhite;
-            this.textBox1.Location = new System.Drawing.Point(210, 967);
+            this.textBox1.Location = new System.Drawing.Point(210, 948);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(1450, 62);
+            this.textBox1.Size = new System.Drawing.Size(1450, 81);
             this.textBox1.TabIndex = 1;
+            this.textBox1.Click += new System.EventHandler(this.textBox1_Click);
             this.textBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
             // 

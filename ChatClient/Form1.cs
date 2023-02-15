@@ -50,7 +50,7 @@ namespace ChatClient
             {
                 pictureBox1.Image = null;
             }
-            this.dataGridView1.Columns["Id"].Visible = false;
+            
 
             if (textBox2.Text == "")
             {
@@ -62,6 +62,7 @@ namespace ChatClient
         }
         string[] sw;
         string[] sww;
+        string[] swww;
         Button button = new Button();
         Button button3 = new Button();
         public async void GetChannelNames()
@@ -114,8 +115,7 @@ namespace ChatClient
         {
             var btn = sender as Button;
             label3.Text = btn.Text.Trim();
-            var query = _CP.Servers.Where(x => x.ServerName==label2.Text&&x.Channels==label3.Text).ToList();
-            dataGridView1.DataSource = query.ToList();
+            GetAll();
         }
 
         public async void GetServerNames()
@@ -178,12 +178,11 @@ namespace ChatClient
         {
             var btn = sender as Button;
             label2.Text = btn.Text.Trim();
-            var query = _CP.Messages.Where(x => x.Server == label2.Text && x.Channel == label3.Text).ToList();
-            dataGridView1.DataSource = query.ToList();
-            this.dataGridView1.Columns["Id"].Visible = false;
+            GetAll();
             GetChannelNames();
             GetUserNames();
         }
+
 
         private void GetAll()
         {
@@ -207,17 +206,14 @@ namespace ChatClient
                 var json = JsonConvert.SerializeObject(newMessage);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 await HttpHelper.httpClient.PostAsync($"/api/Messages/SendMessage", content).Result.Content.ReadAsStringAsync();
-                var query = _CP.Messages.Where(x => x.Server == label2.Text && x.Channel == label3.Text).ToList();
-                dataGridView1.DataSource = query.ToList();
+                GetAll();
                 textBox1.Clear();
-                this.dataGridView1.Columns["Id"].Visible = false;
             }
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            var query = _CP.Messages.Where(x => x.Server == label2.Text && x.Channel == label3.Text).ToList();
-            dataGridView1.DataSource = query.ToList();
+            GetAll();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -266,6 +262,10 @@ namespace ChatClient
             {
                 button4.Enabled = true;
             }
+        }
+
+        private void textBox1_Click(object sender, EventArgs e)
+        {
         }
     }
 }

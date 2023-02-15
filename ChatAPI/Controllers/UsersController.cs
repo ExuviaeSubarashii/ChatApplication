@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Linq;
+using System.Text;
 using System.Text.Json.Serialization;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -18,12 +19,30 @@ namespace ChatAPI.Controllers
         {
             _CP = CP;
         }
-        //[HttpGet]
-        //[Route("GetUserNames")]
-        //public ActionResult GetUserNames()
-        //{
-        //    var query2 = _CP.Users.Any().ToList();
-        //}
+        [HttpPut]
+        [Route("DeleteChannel")]
+        public ActionResult DeleteChannel([FromBody] Servers servers)
+        {
+            string[] sww = null;
+            List<string> sw = new List<string>();
+            var checkifserverexists = _CP.Servers.Where(x => x.ServerName.Trim() == servers.ServerName.Trim()).FirstOrDefault();
+            if (checkifserverexists != null)
+            {
+                var query = _CP.Servers.Where(x => x.Channels.Contains(servers.Channels)).FirstOrDefault();
+                var query2 = _CP.Servers.Where(x => x.ServerName.Trim() == servers.ServerName.Trim() && x.Channels.Contains(servers.Channels.Trim())).ToList();
+                foreach (var item in query2)
+                {
+                    sww = item.Channels.Split(',');
+                }
+                List<String> list = sww.ToList();
+                list.Remove(servers.Channels.TrimEnd());
+                string[] columns = list.ToArray();
+                var newchannelss = string.Join(",", columns);
+                query.Channels = newchannelss;
+                _CP.SaveChanges();
+            }
+            return Ok();
+        }
         [HttpPut]
         [Route("DeleteServer")]
         public ActionResult DeleteServer([FromBody] User user)
@@ -31,7 +50,6 @@ namespace ChatAPI.Controllers
             string[] sww = null;
             List<string> sw = new List<string>();
             var query = _CP.Users.Where(x => x.Username.Trim() == user.Username.Trim()).FirstOrDefault();
-
             var query2 = _CP.Users.Where(x => x.Username.Trim() == user.Username.Trim() && x.Server.Contains(user.Server)).ToList();
             foreach (var item in query2)
             {
@@ -109,9 +127,9 @@ namespace ChatAPI.Controllers
         {
             Servers servers1 = new Servers()
             {
-                UserNames= servers.UserNames,
-                Channels= servers.Channels,
-                ServerName= servers.ServerName,
+                UserNames = servers.UserNames,
+                Channels = servers.Channels,
+                ServerName = servers.ServerName,
             };
             var query = _CP.Servers.Any(x => x.ServerName.TrimEnd() == servers.ServerName.TrimEnd());
             if (query)
@@ -133,7 +151,6 @@ namespace ChatAPI.Controllers
             {
                 query2.Server = query2.Server.TrimEnd() + ", " + user.Server.TrimEnd();
             }
-
             _CP.SaveChanges();
             return Ok();
         }
