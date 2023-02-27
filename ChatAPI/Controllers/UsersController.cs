@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -116,7 +118,7 @@ namespace ChatAPI.Controllers
             var query4 = _CP.Servers.Where(x => x.ServerName.TrimEnd() == servers.ServerName.TrimEnd()).FirstOrDefault();
             if (query3)
             {
-                query4.Channels = query4.Channels.TrimEnd() + ", " + servers.Channels.TrimEnd();
+                query4.Channels = query4.Channels.TrimEnd() + "," + servers.Channels.TrimEnd();
             }
             _CP.SaveChanges();
             return Ok();
@@ -172,6 +174,42 @@ namespace ChatAPI.Controllers
                 }
             }
             return Ok();
+        }
+        [HttpPut]
+        [Route("ChangeServerName/{servername}")]
+        public ActionResult ChangeServerName([FromBody] User user,string servername) 
+        {
+            //CHECK IF THIS USER IS IN THE SERVER
+            string[] sww = null;
+            List<string> sw = new List<string>();
+            var CheckIfServerExists = _CP.Users.Where(x => x.Server.Contains(user.Server) && x.Username == user.Username).FirstOrDefault();
+            var CheckIfServerExists2 = _CP.Users.Where(x => x.Server.Contains(user.Server) && x.Username == user.Username).ToList();
+            var BringTheListOfServers = _CP.Users.Where(x => x.Server.Contains(user.Server.ToString().TrimEnd())).ToList();
+
+            foreach (var item in BringTheListOfServers)
+            {
+                sww = item.Server.TrimEnd().Split(',');
+            }
+            foreach (var item in CheckIfServerExists2)
+            {
+                for (int i = 0; i < item.Username.TrimEnd().Count(); i++)
+                {
+                    List<String> list = sww.ToList();
+
+                    list.Remove(user.Server.TrimEnd());
+                    list.Add(servername.TrimEnd());
+
+                    string[] columns = list.ToArray();
+                    var newservers = string.Join(",", columns);
+
+                    CheckIfServerExists.Server = newservers.TrimEnd();
+                    _CP.SaveChanges();
+                }
+            }
+            
+
+            return Ok();
+            //AND NO IDEA
         }
     }
 }

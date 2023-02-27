@@ -80,7 +80,7 @@ namespace Chat.Domain.Models
                 entity.Property(e => e.Image).HasColumnName("Image");
 
                 entity.Property(e => e.Server)
-                    .HasMaxLength(310)
+                    .HasMaxLength(7300)
                     .IsUnicode(false)
                     .HasColumnName("Server")
                     .IsFixedLength();

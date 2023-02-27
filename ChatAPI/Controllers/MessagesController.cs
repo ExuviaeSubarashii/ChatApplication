@@ -1,6 +1,8 @@
 ﻿using Chat.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace ChatAPI.Controllers
 {
@@ -13,12 +15,14 @@ namespace ChatAPI.Controllers
         {
             _CP= CP;
         }
-        [HttpGet]
+        [HttpPost]
         [Route("GetAll")]
-        public ActionResult GetAll()
+        public ActionResult GetAll([FromBody] Message message)
         {
-            var query=_CP.Messages.ToList();
-            return Ok(query);
+            var query= _CP.Messages.Where(x => x.Server==message.Server&&x.Channel==message.Channel).ToList();
+            //var json = JsonConvert.SerializeObject(query);
+            //var content = new StringContent(json, Encoding.UTF8, "application/json");
+            return Ok(query.ToList());
         }
         [HttpPost]
         [Route("SendMessage")]
