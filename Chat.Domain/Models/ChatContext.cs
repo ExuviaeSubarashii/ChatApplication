@@ -59,6 +59,11 @@ namespace Chat.Domain.Models
                    .IsUnicode(false)
                    .HasColumnName("Channel")
                    .IsFixedLength();
+                entity.Property(e => e.ImageDir)
+                   .HasMaxLength(310)
+                   .IsUnicode(false)
+                   .HasColumnName("ImageDir")
+                   .IsFixedLength();
             });
 
             modelBuilder.Entity<User>(entity =>

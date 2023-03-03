@@ -19,9 +19,7 @@ namespace ChatAPI.Controllers
         [Route("GetAll")]
         public ActionResult GetAll([FromBody] Message message)
         {
-            var query= _CP.Messages.Where(x => x.Server==message.Server&&x.Channel==message.Channel).ToList();
-            //var json = JsonConvert.SerializeObject(query);
-            //var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var query= _CP.Messages.Where(x => x.Server==message.Server&&x.Channel==message.Channel && x.ImageDir != "Null").ToList();
             return Ok(query.ToList());
         }
         [HttpPost]
@@ -34,7 +32,8 @@ namespace ChatAPI.Controllers
                 SenderName=msg.SenderName,
                 SenderTime=msg.SenderTime,
                 Server=msg.Server,
-                Channel=msg.Channel
+                Channel=msg.Channel,
+                ImageDir=msg.ImageDir,
             };
             _CP.Messages.Add(newmsg);
             _CP.SaveChanges();
